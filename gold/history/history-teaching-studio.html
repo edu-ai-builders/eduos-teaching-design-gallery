@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="历史教师可直接试用的地图、史料、人物拟像、因果解释和课堂编排工具。">
+  <title>History Teaching Studio · 历史教学工作台</title>
+  <link rel="stylesheet" href="../assets/base.css">
+  <link rel="stylesheet" href="history-studio.css">
+</head>
+<body>
+  <div class="studio-shell">
+    <aside class="studio-sidebar">
+      <a class="studio-brand" href="../../index.html"><span>史</span><div><b>历史教学工作台</b><small>HISTORY STUDIO · 0.1</small></div></a>
+      <nav class="studio-nav" aria-label="工作区">
+        <button data-view="library" class="active"><span>▦</span>课堂工具库</button>
+        <button data-view="templates"><span>≋</span>讲课模板</button>
+        <button data-view="worked"><span>▶</span>案例回放</button>
+      </nav>
+      <div class="sidebar-label">按教师意图筛选</div>
+      <div id="intent-filters" class="intent-filters"></div>
+      <div class="sidebar-foot">工具不是活动名称。<br>每一个都必须改变学生能看见、比较或修正的历史对象。</div>
+    </aside>
+
+    <main class="studio-main">
+      <header class="studio-topbar">
+        <div><p id="view-kicker">CLASSROOM TOOL LIBRARY</p><h1 id="view-title">历史课可以让学生操作什么？</h1></div>
+        <div class="lesson-tray-button"><button id="open-tray">本节课工具 <b id="tray-count">0</b></button></div>
+      </header>
+
+      <section id="library-view" class="studio-view active">
+        <div class="library-layout">
+          <div class="tool-index" id="tool-index"></div>
+          <article class="tool-stage" id="tool-stage"></article>
+          <aside class="agent-panel" id="agent-panel"></aside>
+        </div>
+      </section>
+
+      <section id="templates-view" class="studio-view">
+        <div class="view-intro"><p>这些不是“导入—讲解—总结”的空模板。每一条链路都指定学生先操作什么历史对象、会产生什么证据、下一步如何接续。</p></div>
+        <div class="template-grid" id="template-grid"></div>
+      </section>
+
+      <section id="worked-view" class="studio-view">
+        <div class="worked-layout">
+          <div class="worked-rail" id="worked-rail"></div>
+          <div class="worked-phone">
+            <div class="classroom-projector"><div class="projector-head"><span>课堂投屏</span><b id="worked-time">00:00</b></div><div id="worked-screen"></div></div>
+          </div>
+          <aside class="decision-log"><h2>Agent 决策日志</h2><div id="worked-evidence"></div><ol id="worked-log"></ol><a href="red-cliffs-decision-room.html">打开完整赤壁成品 ↗</a></aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="lesson-tray" id="lesson-tray" aria-hidden="true">
+    <header><div><small>LESSON COMPOSER</small><h2>本节课的工具链</h2></div><button id="close-tray" aria-label="关闭">×</button></header>
+    <p>顺序表达教学意图。工具成功时可以提前结束，不需要机械走完。</p>
+    <div id="tray-items"></div>
+    <div id="tray-checks"></div>
+    <button id="clear-tray" class="tray-clear">清空</button>
+  </aside>
+  <div class="tray-scrim" id="tray-scrim"></div>
+  <script src="history-studio.js"></script>
+</body>
+</html>

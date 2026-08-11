@@ -1,0 +1,50 @@
+{
+  "id": "eduos-teaching-design-atlas-v0",
+  "status": "pending_review",
+  "subjects": [
+    "history",
+    "chinese",
+    "civics",
+    "mathematics",
+    "physics",
+    "chemistry",
+    "biology",
+    "geography"
+  ],
+  "families": {
+    "content": {
+      "path": "content/records.js",
+      "primary_roles": ["RP", "RC"],
+      "expected_records": 24
+    },
+    "pedagogy": {
+      "path": "pedagogy/records.js",
+      "primary_roles": ["PI"],
+      "expected_records": 16
+    },
+    "skills": {
+      "path": "skills/records.js",
+      "primary_roles": ["PS"],
+      "expected_records": 16
+    },
+    "worked_examples": {
+      "path": "worked-examples/records.js",
+      "primary_roles": ["WE"],
+      "expected_records": 8
+    }
+  },
+  "authority_values": ["teacher_defined", "collaborative", "ai_proposed"],
+  "provenance_values": ["conversation_given", "v0_inference", "mixed"],
+  "standalone_demos": {
+    "config": "demo-configs.js",
+    "content_directory": "../demos/content",
+    "pedagogy_directory": "../demos/pedagogy",
+    "worked_examples_directory": "../demos/worked-examples",
+    "expected_total": 48
+  },
+  "notes": [
+    "Catalog families deliberately keep different record shapes.",
+    "Skill records are previews, not installed SKILL.md packages.",
+    "The static page is a review surface, not the canonical substrate."
+  ]
+}

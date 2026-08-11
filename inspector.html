@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="EduOS content、pedagogy、skills 与 worked examples 的开发者检查器。">
+  <title>EduOS · 设计检查器</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="inspector.html"><span class="brand-mark">E/O</span><span>Design Inspector</span></a>
+      <a class="topbar-note" href="index.html">返回课堂 Gold Gallery →</a>
+    </header>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="eyebrow">EduOS · developer / substrate surface</div>
+        <h1>检查资产、来源与<br><span>agent 判断链</span>。</h1>
+        <p class="hero-copy">这是开发者检查面，不是学生课堂界面。八科的 content representation、pedagogy、skills 与 worked examples 可在这里搜索和追溯。</p>
+        <label class="search-wrap" for="catalog-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="搜索资产、条件、来源或 skill…" autocomplete="off"><span class="keycap">/</span></label>
+        <div class="hero-stats" id="hero-stats" aria-label="目录统计"></div>
+      </div>
+    </section>
+    <main class="main">
+      <section aria-labelledby="subjects-title">
+        <div class="section-head"><div><div class="eyebrow" style="color:var(--navy)">Subject lenses</div><h2 id="subjects-title">八科资产检查</h2></div><p>这些页面保留现有 catalog 与旧的通用 demo，用于检查底层记录；它们不再冒充 gold learner artifact。</p></div>
+        <div class="subject-grid" id="subject-grid"></div>
+      </section>
+      <section class="review-stage" aria-labelledby="preview-title">
+        <div class="section-head"><div><div class="eyebrow" style="color:var(--navy)">Legacy subject file</div><h2 id="preview-title">学科资产评审窗</h2></div><p id="preview-description">当前展示历史资产页。</p></div>
+        <div class="frame-shell"><div class="frame-toolbar"><span class="frame-dot"></span><span class="frame-dot"></span><span class="frame-dot"></span><span class="frame-path" id="frame-path">subjects/history.html</span><a class="frame-open" id="frame-open" href="subjects/history.html">单独打开 ↗</a></div><iframe class="subject-frame" id="subject-frame" src="subjects/history.html" title="学科评审页面"></iframe></div>
+      </section>
+      <section class="review-stage" aria-labelledby="search-title">
+        <div class="section-head"><div><div class="eyebrow" style="color:var(--navy)">Agent-search surface</div><h2 id="search-title">跨层搜索</h2></div><p>来自结构化 catalog，可按 content、pedagogy、skill 或 worked example 限定。</p></div>
+        <div class="type-filters" id="type-filters" aria-label="资产类型筛选"></div><div class="search-results" id="search-results" aria-live="polite"></div>
+      </section>
+      <section class="method-grid" aria-label="设计规则">
+        <article class="method-card"><span class="pill">Rule 01</span><h3>Pattern ≠ Widget</h3><p>commit-before-reveal 是信息状态与承诺顺序，不是固定按钮。</p></article>
+        <article class="method-card"><span class="pill">Rule 02</span><h3>Signal ≠ Diagnosis</h3><p>保存可观察行为，并用下一探针区分多种解释。</p></article>
+        <article class="method-card"><span class="pill">Rule 03</span><h3>Authority before novelty</h3><p>教师给定流程时，agent 忠实实现其顺序和课堂意图。</p></article>
+      </section>
+    </main>
+  </div>
+  <script src="catalog/content/records.js"></script><script src="catalog/pedagogy/records.js"></script><script src="catalog/skills/records.js"></script><script src="catalog/worked-examples/records.js"></script><script src="assets/app.js"></script>
+</body>
+</html>
