@@ -24,6 +24,7 @@ SUBJECTS = (
 
 GOLD_ARTIFACTS = (
     "gold/history/history-teaching-studio.html",
+    "gold/mathematics/math-scaffold-studio.html",
     "gold/history/red-cliffs-decision-room.html",
     "gold/history/source-detective.html",
     "gold/history/causal-explanation-builder.html",

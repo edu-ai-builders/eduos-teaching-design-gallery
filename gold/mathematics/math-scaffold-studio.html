@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="数学内容表征、脚手架、诊断探针与 worked examples 的可操作教师工作台。">
+  <title>Math Scaffold Studio · 数学脚手架工作台</title>
+  <link rel="stylesheet" href="../assets/base.css">
+  <link rel="stylesheet" href="math-studio.css">
+</head>
+<body>
+  <div class="math-shell">
+    <aside class="math-side">
+      <a class="math-brand" href="../../index.html"><span>∑</span><div><b>数学脚手架工作台</b><small>MATH STUDIO · 0.1</small></div></a>
+      <nav class="math-nav">
+        <button class="active" data-view="library">▦ 组件实验室</button>
+        <button data-view="routes">⌁ 教学链路</button>
+        <button data-view="worked">▶ Worked example</button>
+      </nav>
+      <div class="filter-title">按功能筛选</div>
+      <div id="math-filters" class="math-filters"></div>
+      <div class="source-note"><b>Fresh-eye boundary</b><p>内容可视化负责让关系可见；脚手架负责控制信息、行动与撤除。两者不能用同一个字段冒充。</p></div>
+    </aside>
+
+    <main class="math-main">
+      <header class="math-top"><div><p id="math-kicker">CONTENT × SCAFFOLDING</p><h1 id="math-title">可视化之后，学生下一步要做什么？</h1></div><button id="open-sequence">本节课链路 <b id="sequence-count">0</b></button></header>
+
+      <section id="library-view" class="math-view active">
+        <div class="math-workbench">
+          <div class="math-list" id="math-list"></div>
+          <article class="math-stage" id="math-stage"></article>
+          <aside class="math-inspector" id="math-inspector"></aside>
+        </div>
+      </section>
+
+      <section id="routes-view" class="math-view">
+        <header class="section-intro"><small>REUSABLE ROUTES</small><h2>不是固定教案，而是根据学生证据选择下一步。</h2><p>每条路线都把 content primitive、scaffold、cheap diagnostic probe 和 fade 条件连接起来。</p></header>
+        <div class="route-grid" id="route-grid"></div>
+      </section>
+
+      <section id="worked-view" class="math-view">
+        <header class="section-intro"><small>GOLD WORKED EXAMPLE · LINEAR EQUATION</small><h2>完整示范怎样逐步消失，而不是永远占着屏幕。</h2></header>
+        <div class="worked-grid"><div class="worked-steps" id="worked-steps"></div><div class="worked-board" id="worked-board"></div><aside class="worked-agent" id="worked-agent"></aside></div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="math-sequence" id="math-sequence" aria-hidden="true"><header><div><small>LESSON SEQUENCE</small><h2>本节课链路</h2></div><button id="close-sequence">×</button></header><p>成功时即可撤除或跳过下一步；这不是必须走完的活动菜单。</p><div id="sequence-items"></div><div id="sequence-check"></div><button id="clear-sequence">清空</button></aside><div class="math-scrim" id="math-scrim"></div>
+  <script src="math-studio.js"></script>
+</body>
+</html>
