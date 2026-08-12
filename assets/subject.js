@@ -49,11 +49,7 @@
       ["实验设计工作台","../gold/biology/experiment-design-bench.html","修改变量、重复与分组，消除混杂。"]
     ]
   };
-  const STUDIOS={
-    history:{href:"../gold/history/history-teaching-studio.html",title:"历史教学工作台",meta:"12 components · 6 routes · 1 replay",desc:"直接操作地图、人物拟像、史料互证、决策室、因果链、反事实、物证推理和讲授模板。"},
-    mathematics:{href:"../gold/mathematics/math-scaffold-studio.html",title:"数学脚手架工作台",meta:"15 components · 6 routes · 1 worked example",desc:"把既有可视化推进到预测、自解释、worked-example fading、错误定位、反例和证明骨架。"},
-    english:{href:"../gold/english/english-scaffold-studio.html",title:"英语 Scaffold Studio",meta:"31 skills · diagnostic · composer · 3 routes",desc:"从学习证据选择最低成本 scaffold，并生成 Agent 可读的 sequence YAML。"}
-  };
+  const STUDIOS=Object.fromEntries(Object.entries(SUBJECTS).map(([id,s])=>[id,{href:`../studios/${id}.html`,title:`${s.name}教学工作台`,meta:id==="mathematics"?"142 components · 127 raw assets inside":id==="english"?"31 scaffold components · 3 routes":id==="history"?"12 components · 6 routes · 1 replay":"8 catalog components · 2 seed routes",desc:"与其他学科使用同一套左侧导航、组件索引、可操作课堂界面、Agent 解释、教学链路与 worked example 回放。"}]));
 
   const key=document.body.dataset.subject;
   const subject=SUBJECTS[key];
@@ -87,7 +83,7 @@
   }
 
   function contentBlock(){
-    const mathLibrary=key==="mathematics"?`<div class="library-banner"><div><small>FULL SOURCE COVERAGE · 127/127 TOOLS</small><h3>math-viz-kit 全量内容库</h3><p>不是只挑 3 个代表例：小学、初中、高中、大学的 127 个 HTML 可视化已全部纳入，可按学段、认知动作、难度、优先级和关键词搜索。</p></div><a href="../library/math-viz-kit/index.html" target="_blank">打开全量目录 ↗</a></div><iframe class="catalog-frame" src="../library/math-viz-kit/index.html" title="127 个数学可视化工具完整目录" loading="lazy"></iframe>`:"";
+    const mathLibrary=key==="mathematics"?`<div class="library-banner"><div><small>FULL SOURCE COVERAGE · 127/127 TOOLS</small><h3>math-viz-kit 已进入统一工作台</h3><p>127 个 raw HTML 不再作为另一个目录网站嵌入；现在与 15 个深度组件一起出现在数学工作台左侧，可搜索并在右侧直接操作。</p></div><a href="../studios/mathematics.html">进入统一工作台 ↗</a></div>`:"";
     const englishSlots=key==="english"?`<div class="content-slots"><article><b>音频／视频片段</b><p>真实声音、词级或句级时间轴。</p></article><article><b>Transcript / target sentence</b><p>目标句、chunk 边界、弱读与重音。</p></article><article><b>Meaning map</b><p>语境词义、意义块、人物与上下文。</p></article><article><b>Example set</b><p>用于 pattern / contrast / rule induction 的例句组。</p></article></div><p class="honesty"><strong>边界：</strong>31 个 scaffold 不是 31 份英语内容。Studio 里的 should have 只是替换样例；教师或上游 agent 必须提供真实语料。</p>`:"";
     return `<section id="content">${sectionHead("01","Content / Representation","可独立使用的内容表示。先把学科关系做对，再决定是否需要脚手架。")}${mathLibrary}${englishSlots}${content.length?`<div class="live-grid">${content.map(x=>liveCard(x,"content")).join("")}</div>`:`${key!=="english"?'<p class="empty">此学科尚未建立独立 content records。</p>':''}`}</section>`;
   }
@@ -115,7 +111,7 @@
     const gold=GOLD[key]||[];
     const catalogExamples=examples.map(item=>{const href=`../demos/worked-examples/${item.id}.html`;return `<article class="example-card"><div><small>COMPOSED RUNTIME · ${item.id}</small><h3>${item.title}</h3><p>${item.summary}</p><div class="flowline">${item.flow.map(x=>`<span>${x}</span>`).join("<b>→</b>")}</div></div><a href="${href}" target="_blank">运行完整例子 ↗</a></article>`}).join("");
     const goldCards=gold.map(([n,h,d])=>`<a class="gold-card" href="${h}" target="_blank"><small>LEARNER-FACING GOLD ARTIFACT</small><h3>${n}</h3><p>${d}</p><strong>直接进入课堂界面 ↗</strong></a>`).join("");
-    const special=key==="mathematics"?`<article class="replay-note"><small>WORKED EXAMPLE FADING · 6 PHASES</small><h3>线性方程：完整示范怎样逐步消失</h3><p>MODEL → PREDICT → EXPLAIN → COMPLETE → DIAGNOSE → TRANSFER。每一阶段都说明 Agent 给什么、观察什么、什么时候撤。</p><a href="../gold/mathematics/math-scaffold-studio.html" target="_blank">在工作台打开回放 ↗</a></article>`:key==="english"?`<article class="replay-note"><small>3 PAIN-POINT ROUTES</small><h3>从“听不见 / 说不出 / 结构混淆”进入</h3><p>不是把 31 个 skill 排成课程；每条 worked route 只调用 4 个左右组件，并把成功和升级条件写进 composer YAML。</p><a href="../gold/english/english-scaffold-studio.html" target="_blank">在 Studio 打开 Worked examples ↗</a></article>`:"";
+    const special=key==="mathematics"?`<article class="replay-note"><small>WORKED EXAMPLE FADING · 6 PHASES</small><h3>线性方程：完整示范怎样逐步消失</h3><p>MODEL → PREDICT → EXPLAIN → COMPLETE → DIAGNOSE → TRANSFER。每一阶段都说明 Agent 给什么、观察什么、什么时候撤。</p><a href="../studios/mathematics.html">在统一工作台打开回放 ↗</a></article>`:key==="english"?`<article class="replay-note"><small>3 PAIN-POINT ROUTES</small><h3>从“听不见 / 说不出 / 结构混淆”进入</h3><p>不是把 31 个 skill 排成课程；每条 worked route 只调用 4 个左右组件，并把成功和升级条件写进 composer YAML。</p><a href="../studios/english.html">在统一工作台打开 Route replay ↗</a></article>`:"";
     const title=key==="english"?"Route Templates / 组件组合范例":"Worked Examples";
     const desc=key==="english"?"当前英语材料展示组件组合与 composer contract；尚未具备逐阶段 learner UI、观测变化和分支回放，因此不冒充 Gold worked example。":"组件在这里真正连接：学生看到什么、Agent 为什么调用、证据怎样改变下一步。";
     return `<section id="examples">${sectionHead("04",title,desc)}${special}<div class="gold-grid">${goldCards}</div>${catalogExamples}</section>`;

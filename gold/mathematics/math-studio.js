@@ -76,5 +76,8 @@ function renderSequence(open=false){$('#sequence-count').textContent=sequence.le
 function toggleSequence(on){$('#math-sequence').classList.toggle('open',on);$('#math-scrim').classList.toggle('show',on);$('#math-sequence').setAttribute('aria-hidden',String(!on))}
 function renderWorked(){let rail=$('#worked-steps');rail.innerHTML=WORKED.map((w,i)=>`<button data-work="${i}" class="${i===worked?'active':''}"><small>${String(i+1).padStart(2,'0')} · ${w.phase}</small><b>${w.name}</b></button>`).join('');$$('[data-work]',rail).forEach(b=>b.onclick=()=>{worked=+b.dataset.work;renderWorked()});let w=WORKED[worked];$('#worked-board').innerHTML=w.screen;$('#worked-agent').innerHTML=`<h3>Agent 在这一阶段做什么</h3><dl><dt>SUPPORT</dt><dd>${w.support}</dd><dt>OBSERVE</dt><dd>${w.evidence}</dd><dt>FADE / NEXT</dt><dd>${w.fade}</dd></dl>`}
 function setView(v){$$('.math-nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$$('.math-view').forEach(x=>x.classList.toggle('active',x.id===v+'-view'));let c={library:['CONTENT × SCAFFOLDING','可视化之后，学生下一步要做什么？'],routes:['EVIDENCE-ROUTED PATHWAYS','让学生证据决定下一步，而不是活动顺序。'],worked:['WORKED EXAMPLE FADING','完整示范怎样逐步消失。']}[v];$('#math-kicker').textContent=c[0];$('#math-title').textContent=c[1]}
-$$('.math-nav button').forEach(b=>b.onclick=()=>setView(b.dataset.view));$('#open-sequence').onclick=()=>toggleSequence(true);$('#close-sequence').onclick=()=>toggleSequence(false);$('#math-scrim').onclick=()=>toggleSequence(false);$('#clear-sequence').onclick=()=>{sequence=[];renderSequence()};
-renderFilters();renderList();renderStage();renderRoutes();renderSequence();renderWorked();
+window.EDUOS_MATH_STUDIO={filters:FILTERS,groups:GROUPS,tools:TOOLS,routes:ROUTES,worked:WORKED};
+if(!window.EDUOS_DATA_ONLY){
+  $$('.math-nav button').forEach(b=>b.onclick=()=>setView(b.dataset.view));$('#open-sequence').onclick=()=>toggleSequence(true);$('#close-sequence').onclick=()=>toggleSequence(false);$('#math-scrim').onclick=()=>toggleSequence(false);$('#clear-sequence').onclick=()=>{sequence=[];renderSequence()};
+  renderFilters();renderList();renderStage();renderRoutes();renderSequence();renderWorked();
+}
