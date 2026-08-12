@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SUBJECTS = (
+CORE_SUBJECTS = (
     "history",
     "chinese",
     "civics",
@@ -21,10 +21,12 @@ SUBJECTS = (
     "biology",
     "geography",
 )
+SUBJECTS = ("history", "mathematics", "english", "biology", "chinese", "civics", "physics", "chemistry", "geography")
 
 GOLD_ARTIFACTS = (
     "gold/history/history-teaching-studio.html",
     "gold/mathematics/math-scaffold-studio.html",
+    "gold/english/english-scaffold-studio.html",
     "gold/history/red-cliffs-decision-room.html",
     "gold/history/source-detective.html",
     "gold/history/causal-explanation-builder.html",
@@ -114,7 +116,7 @@ def main() -> int:
         counts[family] = len(ids)
         if len(ids) != config["expected_records"]:
             errors.append(f"{family}: expected {config['expected_records']} records, found {len(ids)}")
-        unknown_subjects = set(subjects) - set(SUBJECTS)
+        unknown_subjects = set(subjects) - set(CORE_SUBJECTS)
         if unknown_subjects:
             errors.append(f"{family}: unknown subjects {sorted(unknown_subjects)}")
         for record_id in ids:
@@ -128,11 +130,29 @@ def main() -> int:
         path.read_text(encoding="utf-8")
         for path in (ROOT / "catalog").glob("*/records.js")
     )
-    for subject in SUBJECTS:
+    for subject in CORE_SUBJECTS:
         for family in ("content", "pedagogy", "skill", "example"):
             pattern = rf'type:"{family}"[^\n]*subject:"{subject}"|subject:"{subject}"[^\n]*type:"{family}"'
             if not re.search(pattern, all_catalog_text):
                 errors.append(f"no {family} record for {subject}")
+
+    math_tools = sorted((ROOT / "library" / "math-viz-kit").glob("*/*.html"))
+    if len(math_tools) != 127:
+        errors.append(f"mathematics source coverage: expected 127 tools, found {len(math_tools)}")
+    math_index = ROOT / "library" / "math-viz-kit" / "index.html"
+    if not math_index.exists():
+        errors.append("missing mathematics full-library index")
+
+    english_studio = ROOT / "gold" / "english" / "english-scaffold-studio.html"
+    if english_studio.exists():
+        english_text = english_studio.read_text(encoding="utf-8")
+        match = re.search(r"const skills=\[(.*?)\]\.map", english_text, re.DOTALL)
+        english_skills = re.findall(
+            r"\['[a-z-]+','[^']+','[^']+','(?:perception|meaning|reason|production|feedback|meta|reg)'",
+            match.group(1) if match else "",
+        )
+        if len(english_skills) != 31:
+            errors.append(f"English studio coverage: expected 31 components, found {len(english_skills)}")
 
     if errors:
         print("Site validation failed:")
@@ -140,7 +160,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Validated {len(html_files)} hub/subject/gold HTML files, {len(demo_records)} legacy standalone demos, {sum(counts.values())} catalog records, and all local references.")
+    print(f"Validated {len(html_files)} hub/subject/gold HTML files, {len(demo_records)} legacy standalone demos, {sum(counts.values())} catalog records, 127 mathematics tools, 31 English components, and all local references.")
     print("Catalog counts:", json.dumps(counts, ensure_ascii=False, sort_keys=True))
     return 0
 

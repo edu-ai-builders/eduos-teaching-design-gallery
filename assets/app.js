@@ -1,6 +1,7 @@
 (function () {
   const subjects = {
     history: {name:"历史", color:"#e7a15d", note:"决策时信息、史料位置、因果权重与历史 contingency。"},
+    english: {name:"英语", color:"#4b8ed4", note:"感知、意义、推理、产出、反馈、元认知与难度调节。"},
     chinese: {name:"语文", color:"#ee7e78", note:"原文支持层、语言证据、修辞操作与可辩护解释。"},
     civics: {name:"政治／公民", color:"#d7bb51", note:"概念边界、原则冲突、材料证据与规范论证。"},
     mathematics: {name:"数学", color:"#77c8ae", note:"不变量、错误定位、表示协调与参数变化。"},
@@ -59,7 +60,8 @@
     button.dataset.subject = key;
     button.dataset.index = String(index + 1).padStart(2, "0");
     button.style.setProperty("--subject-color", subject.color);
-    button.innerHTML = `<span class="pill">${liveCount} live demos + ${skillCount} skills</span><h3>${subject.name}</h3><p>${subject.note}</p>`;
+    const specialCount = key === "mathematics" ? "127 content + 15 studio" : key === "history" ? "12 studio + 7 catalog" : key === "english" ? "31 scaffold skills" : `${liveCount} live demos + ${skillCount} skills`;
+    button.innerHTML = `<span class="pill">${specialCount}</span><h3>${subject.name}</h3><p>${subject.note}</p>`;
     button.addEventListener("click", () => chooseSubject(key, true));
     subjectGrid.appendChild(button);
   });
@@ -69,7 +71,8 @@
     [window.EDUOS_CONTENT.length, "content records"],
     [window.EDUOS_PEDAGOGY.length, "pedagogy methods"],
     [window.EDUOS_SKILLS.length, "skill contracts"],
-    [48, "live HTML demos"],
+    [127, "math content tools"],
+    [3, "subject workbenches"],
     [window.EDUOS_EXAMPLES.length, "composed examples"]
   ];
   document.getElementById("hero-stats").innerHTML = totals.map(([value,label]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");

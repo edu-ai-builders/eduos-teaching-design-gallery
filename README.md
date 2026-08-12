@@ -1,79 +1,62 @@
-# EduOS Teaching Design Gallery
+# EduOS Teaching Components Atlas
 
-A static, directly operable gallery of subject-native teaching tools, gold lesson artifacts, and developer-facing design records. The current focus is a 12-tool History Teaching Studio, a 15-component Math Scaffold Studio, and six learner-facing history and biology experiences.
+Open [`index.html`](index.html) directly. The landing page explains the product and routes into nine subject pages: the original eight core subjects plus English language learning.
 
-## Open the site
+Every subject page now follows the same reading order:
 
-- GitHub Pages: `https://edu-ai-builders.github.io/eduos-teaching-design-gallery/`
-- Start at `index.html` when browsing locally.
-
-The teacher workbenches expose classroom UI, trigger conditions, success evidence, fade rules, agent contracts, reusable lesson routes, and worked-example replays.
-
-Open [`index.html`](index.html) directly in a browser. The site uses no framework, build step, remote font, network request, or runtime dependency. Relative scripts and iframe pages also work from `file://`.
-
-For a local HTTP preview from the experiment directory:
-
-```bash
-python3 -m http.server 8000 --directory review-site
+```text
+Content / Representation
+  → Scaffolds & Diagnostic Probes
+  → Lesson Routes
+  → Worked Examples
+  → Agent / Teacher Contracts
+  → Coverage & Provenance
 ```
 
-Then open `http://localhost:8000/`.
+The hierarchy is shared; the classroom interfaces remain subject-native.
 
-The root page is now a teacher-facing gallery of six learner-ready gold artifacts. The former catalog dashboard remains available at [`inspector.html`](inspector.html); it is intentionally a separate developer/substrate surface.
+## Current coverage
+
+- **History:** 12-component teacher workbench, 6 lesson routes, Red Cliffs replay, and 3 learner-facing Gold artifacts.
+- **Mathematics:** all 127 tools from `math-viz-kit` are present as source assets; a separate 15-component scaffolding/diagnostic studio provides 6 M01–M15 routes and a six-phase worked-example fading replay. Per-asset route mapping is still in progress.
+- **English:** the existing English Scaffold Studio with 30 scaffold skills, 1 regulation policy, diagnostics, teacher composer, and 3 pain-point route templates. It does not yet include an English content corpus or a Gold worked-example replay.
+- **Biology:** 3 Gold learner artifacts plus catalog seeds.
+- **Chinese, Civics, Physics, Chemistry, Geography:** 3 content records, 2 pedagogy records, 2 skill-contract previews, and 1 composed worked example per subject.
+
+“Complete workbench” and “seed coverage” are shown explicitly on the landing page; the site does not imply equal maturity across subjects.
 
 ## Information architecture
 
 ```text
 review-site/
-├── index.html                       # teacher-facing six-artifact gallery
-├── inspector.html                   # developer search + legacy iframe evaluator
+├── index.html                         # purpose, usage and nine subject entrances
+├── inspector.html                     # developer/search surface
+├── subjects/                          # consistent subject pages
 ├── gold/
-│   ├── history/                     # history teaching studio + three gold artifacts
-│   ├── mathematics/                 # math content × scaffolding workbench
-│   ├── biology/                     # three mechanism-specific biology artifacts
-│   └── assets/base.css              # shared chrome only, not a universal demo engine
-├── subjects/                        # eight standalone subject HTML files
-├── demos/
-│   ├── content/                     # 24 directly operable HTML results
-│   ├── pedagogy/                    # 16 pedagogy state-machine HTML results
-│   └── worked-examples/             # 8 composed content→skill runtimes
-├── assets/
-│   ├── site.css                     # shared visual system
-│   ├── app.js                       # hub search, filters, iframe routing
-│   └── subject.js                   # shared subject-page renderer
-├── catalog/
-│   ├── content/records.js           # RP / RC candidates
-│   ├── pedagogy/records.js          # domain-native PI candidates
-│   ├── skills/records.js            # searchable PS contract previews
-│   └── worked-examples/records.js   # eight WE gold seeds
-└── scripts/validate_site.py
+│   ├── history/                       # workbench + 3 learner artifacts
+│   ├── mathematics/                   # scaffold studio
+│   ├── english/                       # English Scaffold Studio
+│   └── biology/                       # 3 learner artifacts
+├── library/math-viz-kit/              # 127/127 content tools + searchable index
+├── demos/                             # 48 catalog-linked standalone demos
+├── catalog/                           # non-unified content/pedagogy/skill/example records
+└── assets/                            # portal and subject-page renderers
 ```
 
-The four catalog files remain the searchable data layer. The six `gold/` pages are instructional artifacts, not prose previews of those records. Their central interfaces are deliberately separate implementations: a decision room, source desk, causal graph, time-series lab, pedigree model competition, and physical experiment bench.
+## Important boundaries
 
-`gold/history/history-teaching-studio.html` is the first subject-native teacher workbench. It contains 12 operable historical teaching tools, six lesson pathway templates, a lightweight lesson composer, and a worked-example replay. Its persona tool is evidence-bounded: characters cannot know later outcomes or invent unsupported private thoughts.
+- A content visualization is not automatically a scaffold.
+- A scaffold is not automatically a lesson route.
+- A route is conditional: success can stop it; failure can change it.
+- English studio examples use replaceable sample language and are not a content corpus.
+- The 127 mathematics tools are complete source coverage; the 15 studio components are a curated instructional layer, not a substitute for the full library.
+- Skill records are contract previews, not installed `SKILL.md` packages.
+- Catalog families retain different record shapes; the site does not force them into one ontology.
 
-`gold/mathematics/math-scaffold-studio.html` separates content primitives from instructional scaffolds. It contains 15 operable components, six evidence-routed pathways, and a six-phase worked-example fading replay. The content layer is informed by `edu-ai-builders/math-viz-kit`; the exact, data-driven solution-page pattern is informed by `wy51ai/edulab`. New work focuses on prediction, self-explanation, first-invalid-step diagnosis, subgoals, strategy comparison, counterexamples, proof skeletons, monitoring, and explicit fade conditions.
+## Validation
 
-Each content and pedagogy record still has a legacy standalone HTML result under `demos/`. These are retained for substrate review and comparison, but are not labeled as gold classroom artifacts.
-
-## Surface boundary
-
-- **Learner/classroom artifact:** the six pages under `gold/`; the mechanism is visible and operable by default.
-- **Teacher controls:** a concealed drawer inside each artifact for reset, pacing, and intentional reveal.
-- **Developer/substrate inspector:** `inspector.html`, catalogs, legacy demos, provenance and skill contracts.
-
-Example searches:
+Run:
 
 ```bash
-rg -n "teacher_defined|near miss|宏观|无学生设备" review-site/catalog
-rg -n "subject:\"chemistry\"" review-site/catalog
-rg -n "role:\"PS\"" review-site/catalog/skills
+python3 scripts/validate_site.py
 ```
-
-## Boundaries
-
-- Skill records are contract previews, not installed `SKILL.md` packages.
-- Content, pedagogy, skill, and worked-example directories retain different record shapes.
-- The browser combines them for search but does not assert one canonical ontology.
-- All records remain `pending_review`; subject and classroom review is still required.

@@ -3,6 +3,7 @@
   "status": "pending_review",
   "subjects": [
     "history",
+    "english",
     "chinese",
     "civics",
     "mathematics",
@@ -33,6 +34,14 @@
       "expected_records": 8
     }
   },
+  "subject_workbenches": {
+    "history": {"components": 12, "routes": 6, "worked_replays": 1},
+    "mathematics": {"components": 15, "routes": 6, "worked_replays": 1},
+    "english": {"components": 31, "route_templates": 3, "worked_replays": 0}
+  },
+  "full_content_libraries": {
+    "mathematics": {"path": "../library/math-viz-kit/index.html", "tools": 127, "coverage": "127/127"}
+  },
   "authority_values": ["teacher_defined", "collaborative", "ai_proposed"],
   "provenance_values": ["conversation_given", "v0_inference", "mixed"],
   "standalone_demos": {
@@ -45,6 +54,8 @@
   "notes": [
     "Catalog families deliberately keep different record shapes.",
     "Skill records are previews, not installed SKILL.md packages.",
-    "The static page is a review surface, not the canonical substrate."
+    "The static page is a review surface, not the canonical substrate.",
+    "English is represented by a subject workbench but does not yet have parallel catalog-family records.",
+    "The 127-item mathematics library is source coverage; the 15-item studio is instructional scaffolding coverage."
   ]
 }
