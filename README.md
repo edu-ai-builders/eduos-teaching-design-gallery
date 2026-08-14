@@ -2,24 +2,24 @@
 
 Open [`index.html`](index.html) directly. The landing page explains the product and routes into nine subject pages: the original eight core subjects plus English language learning.
 
-Every subject page now follows the same reading order:
+Every subject page follows the same shell, but English and History now begin an experience-first Gold layer:
 
 ```text
-Content / Representation
-  → Scaffolds & Diagnostic Probes
-  → Lesson Routes
-  → Worked Examples
-  → Agent / Teacher Contracts
-  → Coverage & Provenance
+Learning state
+  → Learner action
+  → Observable evidence
+  → Pedagogical response
+  → Artifact evolution
+  → Fade / independence
 ```
 
 The hierarchy is shared; the classroom interfaces remain subject-native.
 
 ## Current coverage
 
-- **History:** 12-component teacher workbench, 6 lesson routes, Red Cliffs replay, and 3 learner-facing Gold artifacts.
+- **History:** two experience-first Gold implementations (Evidence-Constrained Interpretation and Source-Grounded Perspective Chat), plus the existing 12-component workbench and routes.
 - **Mathematics:** all 127 tools from `math-viz-kit` are present as source assets; a separate 15-component scaffolding/diagnostic studio provides 6 M01–M15 routes and a six-phase worked-example fading replay. Per-asset route mapping is still in progress.
-- **English:** the existing English Scaffold Studio with 30 scaffold skills, 1 regulation policy, diagnostics, teacher composer, and 3 pain-point route templates. It does not yet include an English content corpus or a Gold worked-example replay.
+- **English:** two experience-first Gold implementations (Perception Rescue and Meaning → Retrieval → Production), plus the existing 30 scaffold skills and regulation policy. The second Gold includes a Language Learning Studio SOP Kit-inspired plus-one writing stage.
 - **Biology:** 3 Gold learner artifacts plus catalog seeds.
 - **Chinese, Civics, Physics, Chemistry, Geography:** 3 content records, 2 pedagogy records, 2 skill-contract previews, and 1 composed worked example per subject.
 
@@ -40,6 +40,7 @@ review-site/
 ├── library/math-viz-kit/              # 127/127 content tools + searchable index
 ├── demos/                             # 48 catalog-linked standalone demos
 ├── catalog/                           # non-unified content/pedagogy/skill/example records
+│   └── gold-experiences/              # Agent-readable Gold Interaction Specs
 └── assets/                            # portal and subject-page renderers
 ```
 
@@ -52,6 +53,7 @@ review-site/
 - The 127 mathematics tools are complete source coverage; the 15 studio components are a curated instructional layer, not a substitute for the full library.
 - Skill records are contract previews, not installed `SKILL.md` packages.
 - Catalog families retain different record shapes; the site does not force them into one ontology.
+- Gold experiences add, rather than replace, four parallel layers: Concept, Decision Contract, Executable Experience Spec, and Reference Implementation.
 
 ## Validation
 

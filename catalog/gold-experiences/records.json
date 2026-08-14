@@ -1,0 +1,82 @@
+{
+  "schema_version": "gold-interaction-spec.v1",
+  "north_star": "Don’t show me the scaffold. Put me in the learning state that needs the scaffold, let me act, then let me feel what the scaffold changes.",
+  "records": [
+    {
+      "id": "EN-G01",
+      "subject": "english",
+      "concept": "Perception Rescue",
+      "decision_contract": {
+        "trigger": ["repeated replay", "weak-form omission", "low confidence", "no vocabulary query"],
+        "refuse_when": "The learner already perceives should’ve accurately and only lacks its grammatical meaning.",
+        "success": "The learner reconstructs should’ve or should have at original speed.",
+        "fade": "Remove boundary, stress, and written-form support immediately."
+      },
+      "experience_spec": {
+        "learner_sees": "An audio reconstruction task: I ____ told you earlier.",
+        "learner_can": ["play the full sentence", "submit should or should’ve", "request one more hint"],
+        "system_does": ["replay only should’ve", "reveal chunk boundaries", "mark stress", "reveal should’ve = should have"],
+        "evidence": ["play count", "weak-form omission", "confidence", "help level", "successful reconstruction"],
+        "continuity": "The original listening attempt remains visible in the learner trace."
+      },
+      "reference_implementation": "studios/english.html#Gold-examples"
+    },
+    {
+      "id": "EN-G02",
+      "subject": "english",
+      "concept": "Meaning → Retrieval → Production",
+      "decision_contract": {
+        "trigger": ["word-level comprehension without phrase mapping", "comprehension succeeds but production stalls"],
+        "refuse_when": "The learner has not established core lexical meaning or basic sentence perception.",
+        "success": "The learner reconstructs a hidden chunk, identifies the contrast, retrieves the form, produces a personal sentence, and completes a plus-one writing slot.",
+        "fade": "Remove L1 support first, then the retrieval cue, then the sentence starter."
+      },
+      "experience_spec": {
+        "learner_sees": "I’ve been waiting for you since noon, a tense contrast, a retrieval blank, a personal frame, and an AI-feedback writing prompt.",
+        "learner_can": ["inspect semantic chunks", "hide Chinese", "reconstruct for you", "choose a tense meaning", "retrieve should", "write a personal sentence", "select arguments and complete a plus-one slot"],
+        "system_does": ["preserve semantic colors", "restore boundaries without full translation after failure", "recommend a writing skeleton from selected arguments", "give structural feedback without rewriting"],
+        "evidence": ["chunk inspected", "reconstruction accuracy", "contrast choice", "hint cost", "learner sentence", "selected arguments", "learner-authored paragraph slot"],
+        "continuity": "Meaning, grammar response, personal sentence, and writing draft remain in one learner artifact."
+      },
+      "reference_implementation": "studios/english.html#Gold-examples"
+    },
+    {
+      "id": "HI-G01",
+      "subject": "history",
+      "concept": "Evidence-Constrained Interpretation",
+      "decision_contract": {
+        "trigger": ["multi-causal historical explanation", "need to distinguish what a source can and cannot support"],
+        "refuse_when": "The task only asks for factual recall.",
+        "success": "The learner revises a provisional claim to acknowledge evidence from more than one causal category.",
+        "fade": "Remove classification labels but preserve the source set, original claim, and revision."
+      },
+      "experience_spec": {
+        "learner_sees": "A provisional claim about U.S. entry into World War I and three attributed classroom sources.",
+        "learner_can": ["classify each source as supports, complicates, or contradicts", "edit the claim", "write a revised claim"],
+        "system_does": ["update an evidence-coverage ledger", "show source tension", "preserve original and revised claims side by side"],
+        "evidence": ["source classifications", "causal-category coverage", "claim revision"],
+        "continuity": "The provisional claim becomes an evidence-tested revised interpretation."
+      },
+      "reference_implementation": "studios/history.html#Gold-examples"
+    },
+    {
+      "id": "HI-G02",
+      "subject": "history",
+      "concept": "Source-Grounded Perspective Chat",
+      "decision_contract": {
+        "trigger": ["perspective taking", "actor constraints", "source comparison"],
+        "refuse_when": "A question requires knowledge outside the actor’s historical horizon or invites unsupported role play.",
+        "success": "The learner saves sourced claims from multiple actors and revises an interpretation across perspectives.",
+        "fade": "Remove the actor voice after comparison; retain source citations and the learner’s notebook."
+      },
+      "experience_spec": {
+        "learner_sees": "A 1839 source bundle, source-grounded actor chat, and evidence notebook.",
+        "learner_can": ["ask a question", "open a source citation", "save a claim", "switch actors", "revise an interpretation"],
+        "system_does": ["answer only from the source bundle", "cite every answer", "refuse hindsight", "preserve notes across actor switches"],
+        "evidence": ["questions asked", "citations opened", "claims saved", "actors compared", "revised interpretation"],
+        "continuity": "Chat claims become notebook evidence and then a revised historical interpretation."
+      },
+      "reference_implementation": "studios/history.html#Gold-examples"
+    }
+  ]
+}

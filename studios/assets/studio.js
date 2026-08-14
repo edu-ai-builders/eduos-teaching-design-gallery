@@ -64,6 +64,118 @@
   let worked=special?.worked||[];
   let selected=tools[0]?.id, filter='all', query='', sequence=[], workedIndex=0;
   let workedTrace=[], workedHelp=0, workedComplete=false;
+  const goldExperiences=buildGoldExperiences();
+  let activeGold=goldExperiences[0]?.id||'', goldState={};
+
+  function buildGoldExperiences(){
+    if(subject==='english')return [
+      {id:'EN-G01',module:'听力 · 感知诊断',title:'Perception Rescue',problem:'学习者把 should’ve 听成 should；继续讲语法不会解决声音感知。',promise:'让访客亲自经历一次由错误证据驱动的最小帮助升级。',flow:['第一次听写','目标区间回放','语块边界','重音线索','书写展开'],when:'同一音频区间被反复重听，漏写集中在弱读或连读处，且没有词义查询。',not:'学生已经准确听出 should’ve，只是不理解它的语法意义时。',with:['Replay','Boundary Detection','Attention Cue','Acoustic Alignment'],ask:'Build an adaptive listening-rescue interaction for “I should’ve told you earlier.” Start with an actual listening reconstruction task. If the learner omits the weak form, replay only “should’ve”, then reveal chunk boundaries, stress, and finally “should have”. Show the learner trace and stop immediately when reconstruction succeeds. Do not explain grammar while the evidence still indicates a perception problem.'},
+      {id:'EN-G02',module:'阅读 · 语法 · 写作',title:'Meaning → Retrieval → Production',problem:'学习者看懂单词，却不能保留语块结构、提取语法形式并写出自己的表达。',promise:'同一个 learner artifact 从理解、对比、提取一路进入 plus-one 写作。',flow:['意义块映射','撤除中文','最小对比','引导提取','句型产出','Plus-one 写作'],when:'学生能识别词义，但整句映射不稳；或理解正确、产出停顿。',not:'学生尚未理解核心词义或连基本句子都无法感知时。',with:['Semantic Chunk Mapping','Contrast','Partial Completion','Sentence Frame','Writing Skeleton'],ask:'Build a staged English experience that preserves one learner artifact across semantic chunk mapping, support removal, grammar contrast, guided retrieval, sentence framing, and plus-one writing. The learner must act at every stage. Keep selected arguments visible inside the writing skeleton, vary the amount of given text by level, and give structural feedback without replacing the learner’s paragraph.'}
+    ];
+    if(subject==='history')return [
+      {id:'HI-G01',module:'史料 · 解释修订',title:'Evidence-Constrained Interpretation',problem:'“美国为何参加一战”不能被压成单因答案；学生需要让主张经受异质史料的支持与牵制。',promise:'拖放/分类史料，观察证据账本改变，再修订自己的主张。',flow:['提出暂定主张','分类三份史料','查看证据覆盖','识别张力','修订主张'],when:'目标是解释多重历史原因，并区分史料能够支持什么、不能证明什么。',not:'只要求记忆参战日期、人物或条约名称时。',with:['Source Annotation','Evidence Ledger','Claim Revision','Uncertainty Note'],ask:'Build an evidence-constrained history interpretation lab about U.S. entry into World War I. Give the learner a provisional claim and three short, attributed classroom sources. Let the learner classify each source as supports, complicates, or contradicts. Update an evidence-coverage ledger without pretending it is an objective truth score, preserve the original claim, and require a revised claim that acknowledges tension.'},
+      {id:'HI-G02',module:'视角 · 史料对话',title:'Source-Grounded Perspective Chat',problem:'“和历史人物聊天”很容易变成无边界角色扮演；历史学习需要可追溯史料、视角比较与解释修订。',promise:'提问、追溯来源、保存证据、切换人物，再修订自己的解释。',flow:['选择历史行动者','基于史料提问','追溯回答来源','保存证据','比较视角','修订解释'],when:'目标是理解同一事件中行动者的处境、利益与可见信息。',not:'用虚构口吻替代史料，或询问人物当时不可能知道的后来结局时。',with:['Source Bundle','Perspective Interrogation','Evidence Notebook','Compare Perspectives'],ask:'Build a source-grounded perspective interrogation about the 1839 opium crisis. Use three columns: source bundle, chat, and evidence notebook. Every answer must cite the provided source bundle; allow saving claims and switching actors. Refuse knowledge outside the actor’s historical horizon. End by comparing perspectives and revising the learner’s interpretation.'}
+    ];
+    return [];
+  }
+
+  function newGoldState(id){
+    if(id==='EN-G01')return {plays:0,help:0,attempt:'',confidence:'low',result:'等待第一次听写。',success:false,trace:['09:41　任务开始：无字幕播放完整句']};
+    if(id==='EN-G02')return {stage:0,support:'chunks',mapped:'',reconstruct:'',contrast:'',partial:'',frame:'',arguments:[],draft:'',result:'先点击一个意义块。',trace:['10:02　呈现英文原句；中文支持默认关闭']};
+    if(id==='HI-G01')return {claim:'美国参战主要因为德国的无限制潜艇战。',classify:{},revised:'',result:'先判断每份史料与暂定主张的关系。',trace:['11:10　保存暂定主张；尚未读取史料']};
+    if(id==='HI-G02')return {actor:'林则徐',messages:[],saved:[],highlight:'S1',revision:'',result:'选择一个问题，或直接向行动者提问。',trace:['13:20　载入 1839 年史料包；历史视野锁定在当时']};
+    return {};
+  }
+
+  function ensureGoldState(){if(!goldState[activeGold])goldState[activeGold]=newGoldState(activeGold);return goldState[activeGold]}
+  function traceHtml(trace){return `<ol class="gold-trace">${trace.map(x=>`<li>${safe(x)}</li>`).join('')}</ol>`}
+  function progressHtml(exp,current){return `<div class="gold-progress">${exp.flow.map((x,i)=>`<span class="${i<current?'done':i===current?'current':''}"><i>${i+1}</i>${safe(x)}</span>`).join('')}</div>`}
+
+  function goldExplanation(exp,what){
+    return `<section class="gold-explain"><div class="gold-what"><small>WHAT JUST HAPPENED</small><h3>${safe(what)}</h3><p>体验先让学习者行动，再让系统依据可见证据选择最小响应。这里的 UI 不是装饰；它承担诊断、支持与撤除。</p></div><div class="boundary-grid"><article><small>WHEN TO USE</small><p>${safe(exp.when)}</p></article><article class="not-use"><small>WHEN NOT TO USE</small><p>${safe(exp.not)}</p></article></div><div class="compose-row"><small>WORKS WELL WITH</small>${exp.with.map(x=>`<span>${safe(x)}</span>`).join('<b>→</b>')}</div><details class="agent-ask"><summary>Ask your Agent</summary><pre>${safe(exp.ask)}</pre></details><div class="four-layer"><article><small>CONCEPT</small><b>${safe(exp.title)}</b><p>这是什么教学机制？</p></article><article><small>DECISION CONTRACT</small><b>${safe(exp.when)}</b><p>什么时候应该调用？</p></article><article><small>EXPERIENCE SPEC</small><b>学习者看见、行动、得到响应，并留下证据。</b><p>调用后具体发生什么？</p></article><article><small>REFERENCE IMPLEMENTATION</small><b>上方可操作微型产品</b><p>用户真的能玩到什么？</p></article></div></section>`;
+  }
+
+  function englishPerception(exp,s){
+    const sentence=s.success?'I should’ve told you earlier.':s.help>=4?'I / should have / told you / earlier':s.help>=2?'I / should’ve / told you / earlier':s.help>=1?'I should’ve told you earlier.':'I should’ve told you earlier.';
+    const target=s.help>=3?'<mark>SHOULD</mark><span class="weak-form">’ve</span>':s.help>=1?'<mark>should’ve</mark>':'should’ve';
+    const shown=sentence.replace('should’ve',target);
+    return `<div class="gold-live english-live"><header class="gold-context"><div><small>LEARNING SITUATION · REAL CONTENT</small><h2>你听见的是 <em>should</em>，还是 <em>should’ve</em>？</h2><p>先完成一句真实听写。系统不会因为出错就立刻讲语法。</p></div><div class="learner-switch"><small>SIMULATE LEARNER STATE</small><button data-perception-state="novice" class="${s.confidence==='low'?'active':''}">novice</button><button data-perception-state="partial" class="${s.confidence==='mid'?'active':''}">partial</button><button data-perception-state="ready" class="${s.confidence==='high'?'active':''}">ready</button></div></header>${progressHtml(exp,Math.min(s.help,4))}<div class="experience-grid"><section class="experience-main"><div class="audio-player ${s.plays?'playing':''}"><button data-listen>▶</button><div><b>Listen once</b><span>${s.help?`当前只播放：${s.help===1?'should’ve':'完整句'}`:'无字幕 · 正常语速'}</span></div><div class="audio-bars">${Array.from({length:22},(_,i)=>`<i style="height:${18+(i*23)%72}%"></i>`).join('')}</div></div><label class="reconstruct-label">What did you hear?<span>I <input data-perception-input value="${safe(s.attempt)}" placeholder="should / should’ve"> told you earlier.</span></label><div class="experience-actions"><button class="primary" data-perception-submit>检查我的听写</button><button data-perception-help ${s.success||s.help>=4?'disabled':''}>我还听不出 · 给一个线索</button></div><div class="response-card ${s.success?'success':''}"><small>SYSTEM RESPONSE</small><b>${safe(s.result)}</b>${s.help?`<div class="rescue-line">${shown}</div>`:''}${s.help>=4?'<p><b>should’ve = should have</b>。这是最后一级；此前都没有解释语法。</p>':''}</div></section><aside class="evidence-dock"><small>LEARNING EVIDENCE</small><div><span>full plays</span><b>${s.plays}</b></div><div><span>weak-form omission</span><b>${s.attempt&&!/(should\s*have|should['’]?ve)/i.test(s.attempt)?'yes':'—'}</b></div><div><span>confidence</span><b>${s.confidence}</b></div><div class="next-decision"><span>NEXT SCAFFOLD</span><b>${s.success?'fade all support':['observe first','target replay','boundary cue','stress cue','written expansion'][s.help]}</b></div><small>LEARNER TRACE</small>${traceHtml(s.trace)}</aside></div></div>${goldExplanation(exp,s.success?'学生在最小必要支持下重建了声音形式；支架现在消失。':'系统把“听不懂”先当作可验证的感知问题，而不是语法问题。')}`;
+  }
+
+  function englishProduction(exp,s){
+    const stages=['意义块映射','撤除中文并重建','时态最小对比','引导提取','个人句型产出','Plus-one 写作'];
+    const meanings={a:['I’ve been waiting','一直在等'],b:['for you','等的是你'],c:['since noon','从中午开始']};
+    let task='';
+    if(s.stage===0)task=`<div class="support-tabs"><button data-support="chunks" class="${s.support==='chunks'?'active':''}">Meaning chunks</button><button data-support="chinese" class="${s.support==='chinese'?'active':''}">Chinese support</button><button data-support="none" class="${s.support==='none'?'active':''}">No support</button></div><div class="semantic-stage">${Object.entries(meanings).map(([k,v])=>`<button data-meaning="${k}" class="tone-${k} ${s.mapped===k?'open':''}"><span>${v[0]}</span>${s.support==='chinese'||s.mapped===k?`<b>${v[1]}</b>`:''}</button>`).join('')}</div><button class="primary" data-mrp-next>我看见了三个意义块 → 撤支持</button>`;
+    if(s.stage===1)task=`<p class="task-prompt">中文支持已经撤掉。把刚才的意义块从记忆中放回句子。</p><div class="sentence-task">I’ve been waiting <input data-reconstruct value="${safe(s.reconstruct)}" placeholder="______"> since noon.</div><button class="primary" data-reconstruct-submit>检查重建</button>`;
+    if(s.stage===2)task=`<p class="task-prompt">哪一句表达“过去本应该做、但没有做”？</p><div class="contrast-choice"><button data-mrp-contrast="call" class="${s.contrast==='call'?'picked':''}">I should call you.</button><button data-mrp-contrast="called" class="${s.contrast==='called'?'picked':''}">I should have called you.</button></div>`;
+    if(s.stage===3)task=`<p class="task-prompt">把刚才识别出的结构提取出来。</p><div class="sentence-task">I <input data-partial value="${safe(s.partial)}" placeholder="______"> have checked the address.</div><button class="primary" data-partial-submit>提交</button>`;
+    if(s.stage===4)task=`<p class="task-prompt">现在把结构带进你自己的昨天。</p><div class="sentence-task">I should have <input data-frame value="${safe(s.frame)}" placeholder="called my friend">.</div><button class="primary" data-frame-submit>保存我的句子</button>`;
+    if(s.stage===5){const args=[['human','教师理解具体写作语境'],['speed','AI 能即时返回建议'],['depend','过度依赖会削弱自我修改'],['access','AI 让更多学生获得反馈']];task=`<div class="writing-brief"><small>WRITING EXTENSION · 来自 Language Learning Studio SOP Kit</small><h3>Should students rely on AI feedback when writing?</h3><p>先选观点；系统推荐骨架。不是先生成范文。</p></div><div class="argument-pool">${args.map(([id,x])=>`<button data-argument="${id}" class="${s.arguments.includes(id)?'picked':''}">${x}</button>`).join('')}</div><div class="skeleton-card"><small>RECOMMENDED SKELETON</small><b>${s.arguments.includes('speed')&&s.arguments.includes('depend')?'Concession → Risk → Position':'Claim → Reason → Example'}</b><p><span>GIVEN</span> Although AI feedback can be immediate,</p><p><span>BLANK</span> <input data-draft value="${safe(s.draft)}" placeholder="students still need to…"></p></div><button class="primary" data-writing-submit>检查结构，不代写</button>`}
+    const artifact=`<div class="artifact-stack"><small>LEARNER ARTIFACT · 一直保留</small><p><b>Meaning:</b> ${s.reconstruct||'—'}</p><p><b>Grammar:</b> ${s.partial||'—'}</p><p><b>My sentence:</b> ${s.frame?`I should have ${safe(s.frame)}.`:'—'}</p><p><b>Writing:</b> ${s.draft||'—'}</p></div>`;
+    return `<div class="gold-live english-live"><header class="gold-context"><div><small>LEARNING SITUATION · MODULE CHAIN</small><h2>看懂以后，怎样真的变成自己的表达？</h2><p>阅读、词义、语法、提取和写作共享同一份学生产物。</p></div><span class="module-pill">${stages[s.stage]}</span></header>${progressHtml(exp,s.stage)}<div class="experience-grid"><section class="experience-main"><div class="mrp-task">${task}</div><div class="response-card"><small>PEDAGOGICAL RESPONSE</small><b>${safe(s.result)}</b></div></section><aside class="evidence-dock">${artifact}<small>LEARNER TRACE</small>${traceHtml(s.trace)}</aside></div></div>${goldExplanation(exp,s.stage===5?'SOP Kit 的 plus-one 让“已给部分”和“学生承担部分”同时可见；反馈只检查结构。':'支架逐步减少，但前一步的理解与产出没有被下一张卡替换。')}`;
+  }
+
+  function historyEvidence(exp,s){
+    const sources=[
+      {id:'A',type:'总统演说 · 1917-04-02',factor:'政治理念',text:'Wilson 向国会主张：“The world must be made safe for democracy.” 同时把德国潜艇战描述为对中立权利的挑战。'},
+      {id:'B',type:'外交电报 · 1917-01（课堂转述）',factor:'国家安全',text:'Zimmermann Telegram 提议：若美国参战，德国将寻求墨西哥结盟，并支持其收复失地。'},
+      {id:'C',type:'贸易与金融记录 · 1914–1917（课堂摘要）',factor:'经济联系',text:'美国对协约国的出口和贷款迅速增加，使战争结果与美国商业、金融利益产生更深联系。'}
+    ];
+    const labels={supports:'SUPPORTS',complicates:'COMPLICATES',contradicts:'CONTRADICTS'};
+    const counts={supports:0,complicates:0,contradicts:0};Object.values(s.classify).forEach(x=>counts[x]++);
+    return `<div class="gold-live history-live"><header class="gold-context"><div><small>HISTORICAL THINKING LAB · REAL SOURCES</small><h2>Why did the United States enter World War I?</h2><p>你不是在猜标准答案；你在检查一个暂定主张能否承受多种史料。</p></div><span class="module-pill">史料解释</span></header>${progressHtml(exp,Object.keys(s.classify).length?Math.min(4,Object.keys(s.classify).length+1):0)}<div class="history-claim"><small>WORKING CLAIM · 会被保留</small><textarea data-history-claim>${safe(s.claim)}</textarea></div><div class="source-lab"><section class="source-stack">${sources.map(src=>`<article class="source-card"><header><b>Source ${src.id}</b><span>${src.type}</span></header><p>${src.text}</p><div>${Object.entries(labels).map(([k,v])=>`<button data-source="${src.id}" data-relation="${k}" class="${s.classify[src.id]===k?'active':''}">${v}</button>`).join('')}</div></article>`).join('')}</section><aside class="ledger"><small>EVIDENCE LEDGER</small><h3>Your current evidence coverage</h3><p>不是历史真相分数；只表示你目前使用了哪些类型的证据。</p>${sources.map(src=>`<div class="ledger-row"><span>${src.factor}</span><i><b style="width:${s.classify[src.id]?78:8}%"></b></i><em>${s.classify[src.id]?labels[s.classify[src.id]]:'未分类'}</em></div>`).join('')}<div class="relation-count"><span>support ${counts.supports}</span><span>complicate ${counts.complicates}</span><span>contradict ${counts.contradicts}</span></div><small>LEARNER TRACE</small>${traceHtml(s.trace)}</aside></div><div class="revision-zone"><div><small>ORIGINAL CLAIM</small><p>${safe(s.claim)}</p></div><label><small>REVISE AFTER EVIDENCE</small><textarea data-history-revision placeholder="至少承认一个不同原因或证据张力…">${safe(s.revised)}</textarea></label><button class="primary" data-history-revise>保存修订</button></div><div class="response-card"><small>SYSTEM RESPONSE</small><b>${safe(s.result)}</b></div></div>${goldExplanation(exp,s.revised?'原始主张与修订版本并排保存；学习成果是解释变得更能容纳证据。':'证据账本只显示覆盖与张力，不伪装成客观因果权重。')}`;
+  }
+
+  function historyChat(exp,s){
+    const sources={S1:['林则徐奏折与禁烟告示（课堂转述）','鸦片贸易被描述为损害民生、白银与国家法纪，禁绝被视为必须执行的国家责任。'],S2:['Charles Elliot 通知（1839，课堂转述）','英方要求商人交出鸦片，同时强调保护英国臣民与财产，并试图把私人损失转为国家交涉。'],S3:['广州贸易记录与商人陈述（课堂摘要）','合法贸易、鸦片走私、行商信用与地方生计相互缠绕；骤然中断会让多方承担不同成本。']};
+    const actors=['林则徐','Charles Elliot','广州行商'];
+    return `<div class="gold-live history-live"><header class="gold-context"><div><small>SOURCE-GROUNDED PERSPECTIVE INTERROGATION</small><h2>不要“和历史人物随便聊”；让每句话回到史料。</h2><p>时间边界：广州，1839 年。行动者不知道后来条约的具体结果。</p></div><span class="module-pill">视角比较</span></header>${progressHtml(exp,s.messages.length?Math.min(5,s.saved.length+2):0)}<div class="perspective-grid"><section class="source-panel"><small>SOURCE BUNDLE</small>${Object.entries(sources).map(([id,x])=>`<article class="${s.highlight===id?'highlight':''}"><b>${id} · ${x[0]}</b><p>${x[1]}</p></article>`).join('')}</section><section class="perspective-chat"><div class="actor-tabs">${actors.map(a=>`<button data-actor="${a}" class="${s.actor===a?'active':''}">${a}</button>`).join('')}</div><div class="chat-stream">${s.messages.length?s.messages.map((m,i)=>`<div class="${m.who}"><small>${m.who==='student'?'YOU':safe(m.actor)}</small><p>${safe(m.text)}</p>${m.sources?m.sources.map(id=>`<button data-source-ref="${id}">[${id}]</button>`).join(''):''}${m.who==='actor'?`<button class="save-claim" data-save-message="${i}">＋ Save claim</button>`:''}</div>`).join(''):'<div class="empty-chat">先问：你当时最担心失去什么？</div>'}</div><div class="question-chips"><button data-question="你当时最担心失去什么？">最担心什么？</button><button data-question="你认为对方误解了什么？">对方误解什么？</button><button data-question="1842 年的结果证明你对了吗？">询问后来结局</button></div><div class="chat-input"><input data-chat-question placeholder="基于史料继续追问…"><button data-chat-send>发送</button></div><div class="response-card"><small>SYSTEM BOUNDARY</small><b>${safe(s.result)}</b></div></section><aside class="notebook"><small>EVIDENCE NOTEBOOK</small>${s.saved.length?s.saved.map((x,i)=>`<article><b>${safe(x.actor)}</b><p>${safe(x.text)}</p><span>${x.sources.join(' · ')}</span></article>`).join(''):'<p>保存一条有来源的判断；它会留到视角比较阶段。</p>'}<small>LEARNER TRACE</small>${traceHtml(s.trace)}</aside></div><div class="revision-zone compare-revision"><div><small>PERSPECTIVES SEEN</small><p>${[...new Set(s.messages.filter(x=>x.actor).map(x=>x.actor))].join(' ↔ ')||'尚未比较'}</p></div><label><small>REVISE YOUR INTERPRETATION</small><textarea data-chat-revision placeholder="同一危机为何会被不同角色理解成不同问题？">${safe(s.revision)}</textarea></label><button class="primary" data-chat-revise>保存解释</button></div></div>${goldExplanation(exp,s.saved.length?'Chat 只是界面；真正的教学机制是史料约束、证据保存、视角切换与解释修订。':'每个回答都暴露来源边界，超出人物历史视野的问题会被明确拒绝。')}`;
+  }
+
+  function renderGoldWorked(){
+    const exp=goldExperiences.find(x=>x.id===activeGold)||goldExperiences[0];activeGold=exp.id;const s=ensureGoldState();
+    q('.worked-grid').classList.add('gold-mode');
+    q('#worked-rail').innerHTML=`<div class="rail-intro"><small>GOLD EXPERIENCES</small><p>先玩，再读解释。</p></div>${goldExperiences.map(x=>`<button data-gold-select="${x.id}" class="${x.id===activeGold?'active':''}"><small>${safe(x.id)} · ${safe(x.module)}</small><b>${safe(x.title)}</b><span>${safe(x.problem)}</span></button>`).join('')}<button class="rail-reset" data-gold-reset>↺ 重置当前体验</button>`;
+    q('#worked-agent').innerHTML='';
+    q('#worked-screen').innerHTML=activeGold==='EN-G01'?englishPerception(exp,s):activeGold==='EN-G02'?englishProduction(exp,s):activeGold==='HI-G01'?historyEvidence(exp,s):historyChat(exp,s);
+    qa('[data-gold-select]',q('#worked-rail')).forEach(b=>b.onclick=()=>{activeGold=b.dataset.goldSelect;renderWorked()});
+    q('[data-gold-reset]',q('#worked-rail')).onclick=()=>{goldState[activeGold]=newGoldState(activeGold);renderWorked()};
+    bindGoldInteractions(exp,s);
+  }
+
+  function bindGoldInteractions(exp,s){
+    const root=q('#worked-screen');const one=(sel,fn)=>{const el=q(sel,root);if(el)el.onclick=fn};
+    if(activeGold==='EN-G01'){
+      one('[data-listen]',()=>{s.plays++;s.trace.push(`09:${41+s.plays}　播放${s.help===1?'目标区间 should’ve':'完整句'}（第 ${s.plays} 次）`);s.result=s.help?'系统只重播最小声音区间，不打开全文字幕。':'请把听到的缺口写下来。';renderGoldWorked()});
+      one('[data-perception-submit]',()=>{s.attempt=q('[data-perception-input]',root).value.trim();if(/(should\s*have|should['’]?ve)/i.test(s.attempt)){s.success=true;s.result='✓ 重建成功。边界、重音和书写展开全部撤除，回到原速完整句。';s.trace.push('09:47　正确重建 should’ve；success signal 命中 → fade support')}else{s.help=Math.max(1,s.help);s.result='漏写集中在弱读区间。下一步只重播 should’ve，不讲时态。';s.trace.push('09:42　只写出 should；弱读 ’ve 遗漏 → 感知风险')}renderGoldWorked()});
+      one('[data-perception-help]',()=>{s.help=Math.min(4,s.help+1);s.result=['','只重播 should’ve；观察是否仍漏听。','边界出现：I / should’ve / told you / earlier。','只标出重音 SHOULD；弱读 ’ve 保持轻。','最后才展开 should’ve = should have。'][s.help];s.trace.push(`09:${42+s.help}　请求帮助 → ${['','target replay','boundary cue','stress cue','written expansion'][s.help]}`);renderGoldWorked()});
+      qa('[data-perception-state]',root).forEach(b=>b.onclick=()=>{s.confidence={novice:'low',partial:'mid',ready:'high'}[b.dataset.perceptionState];s.help={novice:2,partial:1,ready:0}[b.dataset.perceptionState];s.success=false;s.result=`模拟 ${b.dataset.perceptionState}：推荐支架已根据证据改变。`;s.trace.push(`09:4${s.trace.length}　learner state → ${b.dataset.perceptionState}`);renderGoldWorked()});
+    }
+    if(activeGold==='EN-G02'){
+      qa('[data-support]',root).forEach(b=>b.onclick=()=>{s.support=b.dataset.support;s.trace.push(`10:0${s.trace.length+2}　support → ${s.support}`);renderGoldWorked()});
+      qa('[data-meaning]',root).forEach(b=>b.onclick=()=>{s.mapped=b.dataset.meaning;s.result='英语与中文共享同一语义颜色；对齐发生在 phrase，而不是单词。';s.trace.push(`10:03　查看 meaning chunk ${s.mapped}`);renderGoldWorked()});
+      one('[data-mrp-next]',()=>{s.support='none';s.stage=1;s.result='中文已撤除；现在检验能否从记忆重建语块。';s.trace.push('10:04　主动关闭中文支持 → retrieval probe');renderGoldWorked()});
+      one('[data-reconstruct-submit]',()=>{s.reconstruct=q('[data-reconstruct]',root).value.trim();if(/for\s+you/i.test(s.reconstruct)){s.stage=2;s.result='✓ 语块重建成功。进入时态意义对比。';s.trace.push('10:05　reconstructed “for you” without L1 support')}else{s.result='先恢复语块边界，不恢复整句翻译。';s.support='chunks';s.trace.push('10:05　reconstruction failed → restore boundaries only')}renderGoldWorked()});
+      qa('[data-mrp-contrast]',root).forEach(b=>b.onclick=()=>{s.contrast=b.dataset.mrpContrast;if(s.contrast==='called'){s.stage=3;s.result='✓ should have called 指向过去未完成的行动。现在提取结构。';s.trace.push('10:06　minimal contrast correct')}else{s.result='这句是现在/将来的建议；请保留两句并排再比较。';s.trace.push('10:06　contrast confusion → keep both examples visible')}renderGoldWorked()});
+      one('[data-partial-submit]',()=>{s.partial=q('[data-partial]',root).value.trim();if(/^should$/i.test(s.partial)){s.stage=4;s.result='✓ 零提示提取成功；框架只保留一个意义槽。';s.trace.push('10:07　retrieved should with hint_cost 0')}else{s.result='只给首字母 s_____，不显示完整答案。';s.partial='s_____';s.trace.push('10:07　retrieval pause → one-letter cue')}renderGoldWorked()});
+      one('[data-frame-submit]',()=>{s.frame=q('[data-frame]',root).value.trim();if(s.frame){s.stage=5;s.result='句型已进入个人语境。下一步不是更多填空，而是 plus-one 写作。';s.trace.push('10:08　saved learner-generated sentence → writing transfer')}else{s.result='先承担一个意义槽；系统不会替你完成句子。';renderGoldWorked()}});
+      qa('[data-argument]',root).forEach(b=>b.onclick=()=>{const id=b.dataset.argument;s.arguments=s.arguments.includes(id)?s.arguments.filter(x=>x!==id):[...s.arguments,id].slice(-2);s.result='已根据你选的观点推荐骨架；观点仍是你的，不是 Agent 生成的。';s.trace.push(`10:09　selected argument: ${id}`);renderGoldWorked()});
+      one('[data-writing-submit]',()=>{s.draft=q('[data-draft]',root).value.trim();s.result=s.draft?'结构反馈：你完成了 concession 后的立场句。下一轮可撤掉 given starter；内容不被 AI 改写。':'先完成 blank 部分。Plus-one 必须让学生实际写。';if(s.draft)s.trace.push('10:11　learner wrote blank slot → structural feedback only');renderGoldWorked()});
+    }
+    if(activeGold==='HI-G01'){
+      qa('[data-source][data-relation]',root).forEach(b=>b.onclick=()=>{s.claim=q('[data-history-claim]',root).value.trim()||s.claim;s.classify[b.dataset.source]=b.dataset.relation;s.result=`Source ${b.dataset.source} 已记为 ${b.dataset.relation}。账本更新的是你的证据覆盖，不是“正确因果权重”。`;s.trace.push(`11:${10+Object.keys(s.classify).length}　Source ${b.dataset.source} → ${b.dataset.relation}`);renderGoldWorked()});
+      one('[data-history-revise]',()=>{s.revised=q('[data-history-revision]',root).value.trim();s.result=s.revised?'✓ 修订已与原始主张并排保存。检查它是否承认至少两类原因。':'修订不能留空；历史解释的成果是 claim revision。';if(s.revised)s.trace.push('11:16　revised claim after evidence tension');renderGoldWorked()});
+    }
+    if(activeGold==='HI-G02'){
+      qa('[data-actor]',root).forEach(b=>b.onclick=()=>{s.actor=b.dataset.actor;s.result=`视角切换到 ${s.actor}；此前保存的证据不会消失。`;s.trace.push(`13:${20+s.trace.length}　switch perspective → ${s.actor}`);renderGoldWorked()});
+      const sendQuestion=text=>{const later=/1842|后来|结果|条约|战争赢/i.test(text);s.messages.push({who:'student',text});if(later){s.messages.push({who:'actor',actor:s.actor,text:'这个问题超出了我在 1839 年能够知道的范围。我可以说明当时的担忧，但不能把后来结果当成我的既有知识。',sources:['S1','S2']});s.result='已触发 historical horizon boundary：拒绝事后全知。';s.trace.push('13:24　question exceeded historical horizon → refusal')}else{const replies={林则徐:['我最担心鸦片继续侵蚀民生、白银与法纪；在我的职责范围内，这首先是必须执行的国家禁令。',['S1']], 'Charles Elliot':['我必须保护英国臣民及其财产，同时处理商人交出鸦片造成的损失与责任。',['S2']], '广州行商':['我担心的是信用与生计同时断裂；合法贸易、走私与官府责任已经缠在一起。',['S3']]};const [answer,sources]=replies[s.actor];s.messages.push({who:'actor',actor:s.actor,text:answer,sources});s.highlight=sources[0];s.result='回答已限定在史料包；点击引用可回看证据。';s.trace.push(`13:2${s.trace.length}　${s.actor} answered from ${sources.join(', ')}`)}renderGoldWorked()};
+      qa('[data-question]',root).forEach(b=>b.onclick=()=>sendQuestion(b.dataset.question));one('[data-chat-send]',()=>{const text=q('[data-chat-question]',root).value.trim();if(text)sendQuestion(text)});
+      qa('[data-source-ref]',root).forEach(b=>b.onclick=()=>{s.highlight=b.dataset.sourceRef;s.result=`已回到 ${s.highlight}。回答不替代史料。`;s.trace.push(`13:2${s.trace.length}　opened citation ${s.highlight}`);renderGoldWorked()});
+      qa('[data-save-message]',root).forEach(b=>b.onclick=()=>{const m=s.messages[+b.dataset.saveMessage];if(m&&m.who==='actor')s.saved.push({actor:m.actor,text:m.text,sources:m.sources});s.result='判断已保存到证据笔记本；切换人物后仍然保留。';s.trace.push(`13:2${s.trace.length}　saved grounded claim from ${m?.actor}`);renderGoldWorked()});
+      one('[data-chat-revise]',()=>{s.revision=q('[data-chat-revision]',root).value.trim();s.result=s.revision?'✓ 解释修订已保存。成功不是聊得更久，而是能用多视角和史料重写判断。':'先写一条自己的解释，Agent 不代写。';if(s.revision)s.trace.push('13:31　revised interpretation across perspectives');renderGoldWorked()});
+    }
+  }
 
   function buildRoutes(){
     const content=tools.filter(x=>x.kind==='content'),moves=tools.filter(x=>x.kind==='scaffold'),probes=tools.filter(x=>x.kind==='diagnostic'),agents=tools.filter(x=>x.kind==='agent');
@@ -130,9 +242,11 @@
   function buildShell(){
     document.title=`${meta.name}教学工作台 · EduOS`;
     q('#subject-mark').textContent=meta.mark;q('#subject-name').textContent=`${meta.name}教学工作台`;q('#subject-en').textContent=`${meta.en} STUDIO · UNIFIED 0.2`;
-    if(subject==='english')q('#worked-nav-label').textContent='Route walkthrough';
+    if(goldExperiences.length){q('[data-view="routes"]').innerHTML='⌁　Experiences';q('#worked-nav-label').textContent='Gold examples';}
     q('#view-title').textContent=meta.title;q('#side-note').innerHTML=`<b>这不是 overview。</b><br>${meta.note}<br><a href="../subjects/${subject}.html">查看学科说明 →</a>`;
+    if(goldExperiences.length){q('#routes-view .section-intro').innerHTML='<small>EXPERIENCE-FIRST GALLERY</small><h2>先进入学习困境，再感受支架改变了什么。</h2><p>这里不是组件目录的另一种排版。每个 Experience 都保留真实内容、学习者行动、可见证据、条件分支与持续演化的 learner artifact。</p>';q('#worked-view .section-intro').innerHTML='<small>GOLD INTERACTION SPEC</small><h2>Demo 是 specification，不是 specification 的插图。</h2><p>隐藏右侧解释也应该能看懂学习问题；体验之后再查看 Decision Contract、边界、组合方式和可交给 Agent 的实现指令。</p>'}
     renderFilters();renderIndex();renderStage();renderRoutes();renderWorked();renderSequence();
+    if(goldExperiences.length)setView('worked');
   }
 
   function renderFilters(){
@@ -176,6 +290,10 @@
   }
 
   function renderRoutes(){
+    if(goldExperiences.length){
+      q('#route-grid').innerHTML=goldExperiences.map((r,i)=>`<article class="route-card experience-card"><small>${safe(r.id)} · ${safe(r.module)}</small><h3>${safe(r.title)}</h3><p class="experience-problem">${safe(r.problem)}</p><div class="route-flow">${r.flow.map((x,j)=>`${j?'<b>→</b>':''}<span>${safe(x)}</span>`).join('')}</div><div class="experience-promise"><b>VISITOR WILL FEEL</b>${safe(r.promise)}</div><button data-open-gold="${r.id}">打开 Live Experience →</button></article>`).join('');
+      qa('[data-open-gold]',q('#route-grid')).forEach(b=>b.onclick=()=>{activeGold=b.dataset.openGold;ensureGoldState();renderWorked();setView('worked')});return;
+    }
     q('#route-grid').innerHTML=routes.map((r,i)=>`<article class="route-card"><small>${safe(r.time||`ROUTE ${i+1}`)}</small><h3>${safe(r.name)}</h3><p>${safe(r.desc)}</p><div class="route-flow">${r.ids.map((id,j)=>`${j?'<b>→</b>':''}<span>${safe(id)} ${safe(byId(id)?.name||'')}</span>`).join('')}</div><div class="route-branch"><span><b>IF SUCCESS</b> stop / fade 当前支持</span><span><b>IF FAIL</b> 依据证据进入下一组件</span></div><button data-route="${i}">载入本节课链路</button></article>`).join('');
     qa('[data-route]',q('#route-grid')).forEach(b=>b.onclick=()=>{sequence=[...routes[+b.dataset.route].ids];renderSequence(true)});
   }
@@ -191,6 +309,8 @@
   }
 
   function renderWorked(){
+    if(goldExperiences.length){renderGoldWorked();return}
+    q('.worked-grid').classList.remove('gold-mode');
     const items=normalizedWorked();
     q('#worked-rail').innerHTML=items.map((w,i)=>`<button data-worked="${i}" class="${i===workedIndex?'active':''}"><small>${safe(w.label)}</small><b>${safe(w.name)}</b></button>`).join('')||'<p style="padding:16px">Worked example 尚待建设。</p>';
     qa('[data-worked]',q('#worked-rail')).forEach(b=>b.onclick=()=>{workedIndex=+b.dataset.worked;workedComplete=false;renderWorked()});
@@ -220,7 +340,7 @@
   }
 
   function toggleSequence(on){q('#sequence').classList.toggle('open',on);q('#scrim').classList.toggle('show',on);q('#sequence').setAttribute('aria-hidden',String(!on))}
-  function setView(view){qa('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));qa('.wb-view').forEach(v=>v.classList.toggle('active',v.id===`${view}-view`));const copy={library:['COMPONENT LAB',meta.title],routes:['LESSON ROUTES','让学生证据决定下一步，而不是活动顺序。'],worked:[subject==='english'?'ROUTE WALKTHROUGH':'WORKED EXAMPLE',subject==='english'?'路线回放：看 scaffold 怎样在成功时撤除；这不是 Gold worked example。':'看 content、pedagogy 与 Agent 如何连接成课堂成品。']}[view];q('#view-kicker').textContent=copy[0];q('#view-title').textContent=copy[1]}
+  function setView(view){qa('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));qa('.wb-view').forEach(v=>v.classList.toggle('active',v.id===`${view}-view`));const copy=goldExperiences.length?{library:['COMPONENT LAB',meta.title],routes:['LIVE EXPERIENCES','从学习困境进入，而不是从组件名称进入。'],worked:['GOLD INTERACTION','亲自操作一个完整的微型学习产品。']}[view]:{library:['COMPONENT LAB',meta.title],routes:['LESSON ROUTES','让学生证据决定下一步，而不是活动顺序。'],worked:['WORKED EXAMPLE','看 content、pedagogy 与 Agent 如何连接成课堂成品。']}[view];q('#view-kicker').textContent=copy[0];q('#view-title').textContent=copy[1]}
 
   q('#search').oninput=e=>{query=e.target.value;renderIndex()};qa('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));q('#open-sequence').onclick=()=>toggleSequence(true);q('#close-sequence').onclick=()=>toggleSequence(false);q('#scrim').onclick=()=>toggleSequence(false);q('#clear-sequence').onclick=()=>{sequence=[];renderSequence()};
   buildShell();
